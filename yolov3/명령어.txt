@@ -1,5 +1,5 @@
 # 분류 명령 학습된 가중치를 사용함
-python detect_1231.py --cfg cfg/yolov3-spp-403cls.cfg --names data/403food.names --weights weights/best_403food_e200b150v2.pt --view-img
+python detect_1231.py --cfg cfg/yolov3-spp-403cls.cfg --names data/403food.names --weights weights/best_403food_e200b150v2.pt --view-img --save-txt
 
 
 
