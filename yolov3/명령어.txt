@@ -1,0 +1,27 @@
+# 분류 명령 학습된 가중치를 사용함
+python detect_1231.py --cfg cfg/yolov3-spp-403cls.cfg --names data/403food.names --weights weights/best_403food_e200b150v2.pt --view-img
+
+
+
+
+# 정의된 명령 입력어
+parser.add_argument('--cfg', type=str, default='cfg/yolov3-spp.cfg', help='*.cfg path')
+    parser.add_argument('--names', type=str, default='data/403food.names', help='*.names path')
+    parser.add_argument('--weights', type=str, default='weights/yolov3-spp-ultralytics.pt', help='weights path')
+    parser.add_argument('--source', type=str, default='data/samples', help='source')  # input file/folder, 0 for webcam
+    parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
+    parser.add_argument('--img-size', type=int, default=320, help='inference size (pixels)')
+    parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
+    parser.add_argument('--iou-thres', type=float, default=0.5, help='IOU threshold for NMS')
+    parser.add_argument('--fourcc', type=str, default='mp4v', help='output video codec (verify ffmpeg support)')
+    parser.add_argument('--half', action='store_true', help='half precision FP16 inference')
+    parser.add_argument('--device', default='0', help='device id (i.e. 0 or 0,1) or cpu')
+    parser.add_argument('--view-img', action='store_true', help='display results')
+    parser.add_argument('--save-txt', action='store_true', help='save results to *.txt')
+    parser.add_argument('--classes', nargs='+', type=int, help='filter by class')
+    parser.add_argument('--agnostic-nms', action='store_true', help='class-agnostic NMS')
+    parser.add_argument('--augment', action='store_true', help='augmented inference')
+    parser.add_argument('--save-xml', action='store_true', help='save results to *.xml')
+
+action 은 호출하면 TRUE
+python detect_1231.py --cfg [경로] --half 와 같이 사용하면 됨

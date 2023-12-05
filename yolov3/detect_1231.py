@@ -148,7 +148,7 @@ def detect(save_img=False):
                 p, s, im0 = path, '', im0s
 
             save_path = str(Path(out) / Path(p).name)
-            print("############################### / "+save_path) # print path on savePath
+            #print("\n############################### "+save_path +"\n") # print path on savePath
             
             #s += '%gx%g ' % img.shape[2:]  # print string
             gn = torch.tensor(im0.shape)[[1, 0, 1, 0]]  #  normalization gain whwh
@@ -206,10 +206,8 @@ def detect(save_img=False):
                    
                     if save_img or view_img:  # Add bbox to image
                         plot_one_box(xyxy, im0, label=label, color=colors[int(cls)])
-                        print("#################이미지 바운딩 박스 지정")
                         
-                    for i in range(count):  ##리스트 두 개 xml파일에 저장
-                        print(f"################# 리스트 바운딩 XML {count}")
+                    for i in range(count):
                         object_xml = SubElement(root, 'object')
                         SubElement(object_xml, 'name').text = object_names[i]
                         bndbox = SubElement(object_xml, 'bndbox')
@@ -227,17 +225,32 @@ def detect(save_img=False):
                     indent(root)
                     tree = ElementTree(root)
                     tree.write(save_path[:save_path.rfind('.')] + '.xml', encoding='utf-8',
-                               xml_declaration=True)  ##아웃풋 폴더에 jpg와 xml 생성
+                               xml_declaration=True)  ##아웃풋 폴더에  xml 생성
 
             # Print time (inference + NMS)
             print('%s (%.3fs)' % (s, t2 - t1))
-
-            # Stream results
+        
+            # img = Image.fromarray(im0)
+            # 이미지 저장 -------------------------------
+            if save_img: 
+                print(f"분류된 이미지 저장 저장위치 : {save_path}\n")
+                cv2.imwrite(save_path, im0)
+                # _img = (im0-im0.min()) / (im0.max() - im0.min())
+                # _img = (im0 * 255).astype(np.uint8)
+                # Numpy 이미지 배열을 Img로 변환하여 저장합니다.
+                # img = Image.fromarray(im0)
+                # img.save(save_path)
+            
+            # 이미지 보이기 -----------------------------
             if view_img:
                 cv2.imshow(p, im0)
-                if cv2.waitKey(1) == ord('q'):  # q to quit
-                    raise StopIteration
+                #if cv2.waitKey(1) == ord('q'):  # q to quit
+                #    raise StopIteration
 
+    if view_img: #이미지를 보기 ESE 입력 대기--------------------------
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+    
     if save_txt or save_img:
         print('Results saved to %s' % os.getcwd() + os.sep + out)
         if platform == 'darwin':  # MacOS
