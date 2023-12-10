@@ -1,5 +1,5 @@
 # 분류 명령 학습된 가중치를 사용함
-python detect_1231.py --cfg cfg/yolov3-spp-403cls.cfg --names data/403food.names --weights weights/best_403food_e200b150v2.pt --view-img --save-txt
+python detect_1231.py --cfg cfg/yolov3-spp-403cls.cfg --names data/403food.names --weights weights/best_403food_e200b150v2.pt --img-size 420 --view-img --save-txt 
 
 
 
@@ -25,3 +25,8 @@ parser.add_argument('--cfg', type=str, default='cfg/yolov3-spp.cfg', help='*.cfg
 
 action 은 호출하면 TRUE
 python detect_1231.py --cfg [경로] --half 와 같이 사용하면 됨
+
+
+
+# test
+python test.py --cfg cfg/yolov3-spp-403cls.cfg --data data/403food.data --weights weights/best_403food_e200b150v2.pt

@@ -29,10 +29,11 @@ def indent(elem, level=0):  #
             elem.tail = i
 
 
-def ToF(file, cat):
+def ToF(file, cat): # 분류 적용
+    print(f"-------------TOF {file} {cat}\n")
     if cat == '00000000':
         output = "N"
-    elif str(file).split('_')[2] == cat:
+    elif cat != '00000000':#str(file).split('_')[2] == cat:
         output = "T"
     else:
         output = "F"
@@ -52,6 +53,7 @@ def detect(save_img=False):
 
     # Initialize model
     model = Darknet(opt.cfg, imgsz)
+    print(f"ImageSize = {imgsz}")
 
     # Load weights
     attempt_download(weights)
@@ -100,28 +102,32 @@ def detect(save_img=False):
         view_img = True
         torch.backends.cudnn.benchmark = True  # set True to speed up constant image size inference
         dataset = LoadStreams(source, img_size=imgsz)
-    else:
+    else:# 이미지 로드
         save_img = True
         dataset = LoadImages(source, img_size=imgsz)
 
     # Get names and colors
     names = load_classes(opt.names)
+    print(f"오브젝트 이름을 로드합니다. {names}")
     colors = [[random.randint(0, 255) for _ in range(3)] for _ in range(len(names))]
     rslt = []
     nT = 0
     nF = 0
     nN = 0
     nND = 0
-    # Run inference
+    
+    # Run inference 분류
     t0 = time.time()
+    # 1 * 3  * imageSize * imageSize Shape
     img = torch.zeros((1, 3, imgsz, imgsz), device=device)  # init img
     _ = model(img.half() if half else img.float()) if device.type != 'cpu' else None  # run once
     for path, img, im0s, vid_cap in dataset:
-        img = torch.from_numpy(img).to(device)
+        img = torch.from_numpy(img).to(device) # numpy로 부터 이미지를 로드합니다.
         img = img.half() if half else img.float()  # uint8 to fp16/32
         img /= 255.0  # 0 - 255 to 0.0 - 1.0
-        if img.ndimension() == 3:
-            img = img.unsqueeze(0)
+        print(f"loaded image Size ::   {img.size()}  Shape {img.shape}")
+        if img.ndimension() == 3:   #배열의 차원수
+            img = img.unsqueeze(0)  #0번째 차원에 추가
 
         # Inference
         t1 = torch_utils.time_synchronized()
@@ -146,6 +152,7 @@ def detect(save_img=False):
                 p, s, im0 = path[i], '%g: ' % i, im0s[i].copy()
             else:
                 p, s, im0 = path, '', im0s
+                #print(f" -   --- -- -- 중간 det : // {det}")
 
             save_path = str(Path(out) / Path(p).name)
             #print("\n############################### "+save_path +"\n") # print path on savePath
@@ -158,6 +165,7 @@ def detect(save_img=False):
             SubElement(root, 'filename').text = str(Path(p))
             SubElement(root, 'path').text = save_path
 
+            # 분류된 정보를 가지고 지정한다.
             if det is not None and len(det):
                 # Rescale boxes from imgsz to im0 size
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
@@ -173,12 +181,14 @@ def detect(save_img=False):
                 object_names = []
 
                 # Write results
+                #cls가 왜 0.0만 나오는가?
                 for *xyxy, conf, cls in reversed(det):
                     label = '%s %.2f' % (names[int(cls)], conf)
                     if save_txt:  # Write to file(xml ?�일)
                         xywh = (xyxy2xywh(torch.tensor(xyxy).view(1, 4)) / gn).view(-1).tolist()  # normalized xywh
                         with open(save_path[:save_path.rfind('.')] + '.txt', 'a') as file:
                             file.write(('%g ' * 5 + '\n') % (cls, *xywh))  # label format
+                            print(('%g ' * 5 + '\n') % (cls, *xywh))
 
                     #if save_xml:
                     semi = []
@@ -189,6 +199,7 @@ def detect(save_img=False):
                     total.append(semi)
                     object_names.append(names[int(cls)])
                     count = count + 1
+                    print(f"오브젝트 이름을 판별합니다.\n {object_names} \n {(names[int(cls)])} \n cls : {cls}")
                     
                     tnT = 0
                     tnF = 0
@@ -294,8 +305,8 @@ if __name__ == '__main__':
     parser.add_argument('--source', type=str, default='data/samples', help='source')  # input file/folder, 0 for webcam
     parser.add_argument('--output', type=str, default='output', help='output folder')  # output folder
     parser.add_argument('--img-size', type=int, default=320, help='inference size (pixels)')
-    parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold')
-    parser.add_argument('--iou-thres', type=float, default=0.5, help='IOU threshold for NMS')
+    parser.add_argument('--conf-thres', type=float, default=0.3, help='object confidence threshold') # 얼마 이하값 분류 X
+    parser.add_argument('--iou-thres', type=float, default=0.5, help='IOU threshold for NMS') # 바운딩 박스 겹치는 부분
     parser.add_argument('--fourcc', type=str, default='mp4v', help='output video codec (verify ffmpeg support)')
     parser.add_argument('--half', action='store_true', help='half precision FP16 inference')
     parser.add_argument('--device', default='0', help='device id (i.e. 0 or 0,1) or cpu')
