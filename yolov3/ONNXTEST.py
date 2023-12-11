@@ -41,8 +41,25 @@ ort_inputs = {ort_session.get_inputs()[0].name:[to_tensor(img)]}
 #output_classe = {ort_session.get_outputs()[0] : classes}
 ort_classe, ort_boxes = ort_session.run(None, ort_inputs)
 
-print(f" ---------Classe[{len(ort_classe)}]-------- \n {ort_classe}")
-print(f" ---------Boxes[{len(ort_boxes)}]-------- \n {ort_boxes}")
+print(f" ---------Classe[{len(ort_classe)}][{ort_classe.shape}]-------- \n {ort_classe} : ")
+print(f" ---------Boxes[{len(ort_boxes)}][{ort_boxes.shape}]-------- \n {ort_boxes}")
+
+arr = ort_classe.flatten()
+arr = np.unique(arr)
+print(f"합 : {np.sum(arr)}")
+
+arrMax = np.argmax(ort_classe, axis=-1)
+print(np.sum(ort_classe))
+print(arrMax[-2])
+
+
+# 배열에서 가장 많이 나온 값을 찾음
+most_common_value = np.bincount(arrMax).argmax()
+
+# 가장 많이 나온 값의 모든 인덱스를 찾음
+indices = np.where(arrMax == most_common_value)[0]
+print(f"가장 많이 나온 값 : {most_common_value}")
+
 
 # def to_numpy(tensor):
 #     return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()

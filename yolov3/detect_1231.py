@@ -170,6 +170,7 @@ def detect(save_img=False):
             # 분류된 정보를 가지고 지정한다.
             if det is not None and len(det):
                 # Rescale boxes from imgsz to im0 size
+                print(f"DET ----------- : {det.shape}  ::: {det}")
                 det[:, :4] = scale_coords(img.shape[2:], det[:, :4], im0.shape).round()
                 count = 0
 
@@ -178,6 +179,7 @@ def detect(save_img=False):
                     n = (det[:, -1] == c).sum()  # detections per class
                     s += '%g %s, ' % (n, names[int(c)])  # add to string
                     s += '%s, ' % (ToF(str(Path(p)), names[int(c)]))  # add True or False
+                    print(f"결과 출력 :{det.shape} : {det} : {det[:, -1]} :: {c} :: {n}")
 
                 total = []
                 object_names = []
