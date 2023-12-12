@@ -12,10 +12,6 @@ from torchvision import transforms
 onnx_model = onnx.load("weights/best_403food_e200b150v2.onnx")
 print(onnx.checker.check_model(onnx_model))
 #print(onnx.helper.printable_graph(onnx_model.graph))
-
-def to_numpy(tensor):
-    return tensor.detach().cpu().numpy() if tensor.requires_grad else tensor.cpu().numpy()
-
 #ONNX Runtime Test -------------------
 ort_session = onnxruntime.InferenceSession("weights/best_403food_e200b150v2.onnx")
 
@@ -40,6 +36,9 @@ ort_inputs = {ort_session.get_inputs()[0].name:[to_tensor(img)]}
 
 #output_classe = {ort_session.get_outputs()[0] : classes}
 ort_classe, ort_boxes = ort_session.run(None, ort_inputs)
+
+np.testing.assert_allclose(onnx_model.detach().cpu().numpy(), ort_classe, rtol=1e-03, atol=1e-05)
+
 
 print(f" ---------Classe[{len(ort_classe)}][{ort_classe.shape}]-------- \n {ort_classe} : ")
 print(f" ---------Boxes[{len(ort_boxes)}][{ort_boxes.shape}]-------- \n {ort_boxes}")
